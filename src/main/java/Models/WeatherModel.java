@@ -1,38 +1,62 @@
 package Models;
 
-import Logic.DateStringComparator;
+import Logic.WeatherPointComparator;
 import Logic.WeatherProvider;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 
 public class WeatherModel {
-    private TreeMap<String, DayWeatherModel> daysWeather = new TreeMap<String, DayWeatherModel>(new DateStringComparator());
+    private TreeMap<WeatherPoint, DayWeatherModel> daysWeather = new TreeMap<WeatherPoint, DayWeatherModel>(new WeatherPointComparator());
 
     public WeatherModel(){}
 
-    public TreeMap<String, DayWeatherModel> getDaysWeather(){return this.daysWeather;}
-    public  DayWeatherModel getDayWeatherModel(String date){
-        return daysWeather.get(date);
+    public TreeMap<WeatherPoint, DayWeatherModel> getDaysWeather(){return this.daysWeather;}
+
+    public  DayWeatherModel getDayWeatherModel(WeatherPoint weatherPoint){
+        return daysWeather.get(weatherPoint);
     }
 
-    public void addDayWeather(DayWeatherModel dwm){
-        String dateString = WeatherProvider.getDateString(dwm.getCalendar());
-        this.daysWeather.put(dateString, dwm);
-        //System.out.println(dateString);
+    public TreeMap<WeatherPoint, DayWeatherModel> getWeatherByDate(GregorianCalendar calendar){
+        TreeMap<WeatherPoint, DayWeatherModel> weatherByDate = new TreeMap<>();
+        for(WeatherPoint weatherPoint : daysWeather.keySet()){
+            if(weatherPoint.getCalendar().equals(calendar)) weatherByDate.put(weatherPoint, getDayWeatherModel(weatherPoint));
+        }
+        return weatherByDate;
     }
 
-    public TreeMap<String, DayWeatherModel> getDaysWeatherWeek(){
-        TreeMap<String, DayWeatherModel> daysWeatherWeek = new TreeMap<String, DayWeatherModel>(new DateStringComparator());
+    public void addDayWeather(DayWeatherModel dwm){//
+        GregorianCalendar calendar = dwm.getCalendar();
+        Location location = dwm.getLocation();
+        WeatherPoint weatherPoint = new WeatherPoint(calendar, location);
+        this.daysWeather.put(weatherPoint, dwm);
+    }
+
+    public TreeMap<WeatherPoint, DayWeatherModel> getDaysWeatherWeek(){
+        TreeMap<WeatherPoint, DayWeatherModel> daysWeatherWeek = new TreeMap<WeatherPoint, DayWeatherModel>(new WeatherPointComparator());
         GregorianCalendar currentCalendar = new GregorianCalendar();
 
         for(int i=0; i<7; i++){
-            String currentDateString = WeatherProvider.getDateString(currentCalendar);
-            DayWeatherModel newDayWeather = getDayWeatherModel(currentDateString);
-            if(newDayWeather != null) daysWeatherWeek.put(currentDateString, newDayWeather);
+            daysWeatherWeek.putAll(getWeatherByDate(currentCalendar));
+            currentCalendar.add(Calendar.DAY_OF_MONTH, 1);
+        }
+
+        return daysWeatherWeek;
+    }
+
+    public TreeMap<WeatherPoint, DayWeatherModel> getDaysWeatherWeekLocation(Location location){
+        TreeMap<WeatherPoint, DayWeatherModel> daysWeatherWeek = new TreeMap<WeatherPoint, DayWeatherModel>(new WeatherPointComparator());
+        GregorianCalendar currentCalendar = new GregorianCalendar();
+
+        for(int i=0; i<7; i++){
+            WeatherPoint weatherPoint = new WeatherPoint(currentCalendar, location);
+            //DayWeatherModel newDayWeather = getDayWeatherModel(weatherPoint);//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            DayWeatherModel newDayWeather = daysWeather.get(weatherPoint);
+            if(newDayWeather != null) {
+                daysWeatherWeek.put(weatherPoint, newDayWeather);
+            }
             currentCalendar.add(Calendar.DAY_OF_MONTH, 1);
         }
 

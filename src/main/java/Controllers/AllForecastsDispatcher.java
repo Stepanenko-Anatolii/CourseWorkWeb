@@ -13,22 +13,21 @@ import javax.servlet.annotation.*;
 import java.io.IOException;
 import java.util.TreeMap;
 
-@WebServlet(name = "LocationController", value = "/LocationController")
-public class LocationController extends HttpServlet {
+@WebServlet(name = "AllForecastsDispatcher", value = "/AllForecastsDispatcher")
+public class AllForecastsDispatcher extends HttpServlet {
 
     public void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String country = request.getParameter("country");
+        String country = request.getParameter("location");
         Location location = new Location(country);
-
         WeatherDataObject weatherDB = new WeatherData();
         WeatherModel weatherData = weatherDB.getAllWeatherByLocation(location);
+        TreeMap<WeatherPoint, DayWeatherModel> allDaysWeather = weatherData.getDaysWeather();
 
-        TreeMap<WeatherPoint, DayWeatherModel> weekWeatherLocation = weatherData.getDaysWeatherWeekLocation(location);
+        request.setAttribute("allDaysWeather", allDaysWeather);
 
+        String path = "/WEB-INF/AllForecastsLocationUser.jsp";
+        request.getRequestDispatcher(path).forward(request, response);
 
-        //request.setAttribute("location", location.getCountry());
-        request.setAttribute("weatherWeek", weekWeatherLocation);
-        request.getRequestDispatcher("/WEB-INF/WeekForecastUser.jsp").forward(request, response);
     }
 
     @Override

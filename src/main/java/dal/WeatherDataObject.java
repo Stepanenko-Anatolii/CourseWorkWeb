@@ -8,7 +8,7 @@ import java.util.GregorianCalendar;
 
 public interface WeatherDataObject {
     void putWeather(DayWeatherModel weather);
-    DayWeatherModel getWeather(GregorianCalendar date);
+    DayWeatherModel getWeather(GregorianCalendar date, Location location);
     WeatherModel getAllWeather();
     WeatherModel getAllWeatherByLocation(Location location);
 }

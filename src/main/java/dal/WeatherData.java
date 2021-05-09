@@ -1,8 +1,10 @@
 package dal;
 
+import Logic.WeatherProvider;
 import Models.DayWeatherModel;
 import Models.Location;
 import Models.WeatherModel;
+import Models.WeatherPoint;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -13,6 +15,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.TreeSet;
 
 public class WeatherData implements WeatherDataObject{
     // JDBC URL, username and password of MySQL server
@@ -76,7 +79,7 @@ public class WeatherData implements WeatherDataObject{
     }
 
     @Override
-    public DayWeatherModel getWeather(GregorianCalendar date) {
+    public DayWeatherModel getWeather(GregorianCalendar date, Location location) {
         DayWeatherModel dayWeather = null;
 
         try {
@@ -85,7 +88,7 @@ public class WeatherData implements WeatherDataObject{
             con = DriverManager.getConnection(url, user, password);// opening database connection to MySQL server
             stmt = con.createStatement();// getting Statement object to execute query
 
-            dayWeather = doGetWeather(date, stmt);
+            dayWeather = doGetWeather(date, location, stmt);
 
         } catch (SQLException | ClassNotFoundException sqlEx) {
             sqlEx.printStackTrace();
@@ -98,7 +101,7 @@ public class WeatherData implements WeatherDataObject{
         return dayWeather;
     }
 
-    private DayWeatherModel doGetWeather(GregorianCalendar date, Statement stmt) throws SQLException {
+    private DayWeatherModel doGetWeather(GregorianCalendar date, Location location, Statement stmt) throws SQLException {
         DayWeatherModel dayWeather = null;
 
         int day = date.get(Calendar.DAY_OF_MONTH);
@@ -107,14 +110,22 @@ public class WeatherData implements WeatherDataObject{
 
         String query1 = "select * from weatherdate where year like " + year + " and month like "+month+" and day like "+day+";";
         rs = stmt.executeQuery(query1);// executing SELECT query
-        rs.next();
-        int index = rs.getInt("idweatherDate");//-------------------------------//
 
-        String query3 = "select * from location where idlocation like "+index+";";
-        rs = stmt.executeQuery(query3);
-        rs.next();
-        String country = rs.getString("country");
-        Location location = new Location(country);
+
+        ArrayList<Integer> indexes = new ArrayList<>();
+        while (rs.next()){
+            int currIndex = rs.getInt("idweatherDate");
+            indexes.add(currIndex);
+        }
+        int index = -1;
+        for(int i : indexes){
+            String query3 = "select * from location where idlocation like "+i+";";
+            rs = stmt.executeQuery(query3);
+            rs.next();
+            String country = rs.getString("country");
+            if(country.equals(location.getCountry())) index = i;
+        }
+        if(index == -1) return null;
 
         String query2 = "select * from weather where idweather like "+index+";";
         rs = stmt.executeQuery(query2);
@@ -147,7 +158,7 @@ public class WeatherData implements WeatherDataObject{
             stmt = con.createStatement();// getting Statement object to execute query
             rs = stmt.executeQuery(query1);// executing SELECT query
 
-            ArrayList<GregorianCalendar> calendars = new ArrayList<>();
+            TreeSet<GregorianCalendar> calendars = new TreeSet<>();
             while(rs.next()){
                 int year = rs.getInt("year");
                 int month = rs.getInt("month");
@@ -156,11 +167,22 @@ public class WeatherData implements WeatherDataObject{
                 calendars.add(calendar);
             }
 
-            for(GregorianCalendar gregorianCalendar: calendars){
-                DayWeatherModel dayWeather = doGetWeather(gregorianCalendar, stmt);//----------------------------//
-                weathers.addDayWeather(dayWeather);
+            ArrayList<Location> locations = new ArrayList<>();
+            TreeSet<String> countries = new TreeSet<>();
+            String query2 = "select * from location;";
+            rs = stmt.executeQuery(query2);
+            while(rs.next()){
+                String country = rs.getString("country");
+                countries.add(country);
             }
+            for(String country : countries) locations.add(new Location(country));
 
+            for(Location location : locations){
+                for(GregorianCalendar gregorianCalendar: calendars){
+                    DayWeatherModel dayWeather = doGetWeather(gregorianCalendar, location, stmt);
+                    if(dayWeather!=null) weathers.addDayWeather(dayWeather);
+                }
+            }
 
         } catch (SQLException | ClassNotFoundException sqlEx) {
             sqlEx.printStackTrace();
@@ -177,9 +199,12 @@ public class WeatherData implements WeatherDataObject{
     @Override
     public WeatherModel getAllWeatherByLocation(Location location){
         WeatherModel weathersByLocation = new WeatherModel();
+
         WeatherModel weathers = getAllWeather();
-        for(String dayWeatherName : weathers.getDaysWeather().keySet()){
-            DayWeatherModel dayWeather = weathers.getDaysWeather().get(dayWeatherName);
+
+        for(WeatherPoint dayWeatherPoint : weathers.getDaysWeather().keySet()){//Set пускает данные только для одной страны!!!!!!!!!
+            DayWeatherModel dayWeather = weathers.getDaysWeather().get(dayWeatherPoint);
+
             if(dayWeather.getLocation().getCountry().equals(location.getCountry())){
                 weathersByLocation.addDayWeather(dayWeather);
             }

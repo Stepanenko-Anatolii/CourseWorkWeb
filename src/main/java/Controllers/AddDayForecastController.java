@@ -15,6 +15,7 @@ import javax.servlet.annotation.*;
 public class AddDayForecastController extends HttpServlet {
 
     public void processRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+
         String country = request.getParameter("country");
         Location location = new Location(country);
 
@@ -29,15 +30,13 @@ public class AddDayForecastController extends HttpServlet {
         String cloudiness = request.getParameter("cloudiness");
 
         DayWeatherModel dayWeather = WeatherProvider.makeWeatherModel(location, date, temperature, humidity, windSpeed, atmospherePressure, rainChance, rainfall, cloudiness);
-
+System.out.println("AddDayFore(32): loc: " + dayWeather.getLocation().getCountry() + "; date: "+WeatherProvider.getDemonstrationDateString(dayWeather.getCalendar()));
         //ДОБАВЛЕНИЕ В БАЗУ ДАННЫХ
         WeatherDataObject weatherDB = new WeatherData();
         weatherDB.putWeather(dayWeather);
 
-        //String path = request.getContextPath() + "/AllForecastsAdmin.jsp";
-        request.getRequestDispatcher("/WEB-INF/AllForecastsAdmin.jsp").forward(request, response);
+        request.getRequestDispatcher("AllForecastsAdminDispatcher").forward(request, response);
     }
-
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         processRequest(request, response);
     }

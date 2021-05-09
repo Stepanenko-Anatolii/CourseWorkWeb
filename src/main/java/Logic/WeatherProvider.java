@@ -46,15 +46,14 @@ public class WeatherProvider {
 
     public static GregorianCalendar getCalendarFromString(String date, String separator){
         String[] dateArr = date.split(separator);
-
         int year = Integer.parseInt(dateArr[0]);
         int month = Integer.parseInt(dateArr[1]);
         int day = Integer.parseInt(dateArr[2]);
-
         return new GregorianCalendar(year, month-1, day);
     }
 
     public static DayWeatherModel makeWeatherModel(Location location, String date, String t, String h, String wS, String aP, String rC, String r, String c){
+        //принимает дату из формата, предоставляемого html
         GregorianCalendar calendar = getCalendarFromString(date, "-");
 
         double temperature = Double.parseDouble(t);
