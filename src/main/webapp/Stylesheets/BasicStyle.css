@@ -1,0 +1,32 @@
+table, th, td{
+    border: 1px solid black;
+    border-spacing: 0;
+}
+td, th{
+    font-family: Calibri;
+    font-size: 16px;
+    padding: 2px 4px;
+    text-align: center;
+}
+input{
+    font-family: Calibri;
+    font-size: 16px;
+    margin-bottom: 2px;
+}
+div{
+    font-family: Calibri;
+    font-size: 16px;
+}
+h4{
+    font-family: Calibri;
+    font-size: 22px;
+    margin-bottom: 5px;
+}
+b{
+    font-family: Calibri;
+    font-size: 16px;
+}
+a{
+    font-family: Calibri;
+    font-size: 16px;
+}

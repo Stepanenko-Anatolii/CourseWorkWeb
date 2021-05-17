@@ -2,13 +2,13 @@ package dal;
 
 import Models.DayWeatherModel;
 import Models.Location;
-import Models.WeatherModel;
+import Logic.WeatherService;
 
 import java.util.GregorianCalendar;
 
 public interface WeatherDataObject {
     void putWeather(DayWeatherModel weather);
     DayWeatherModel getWeather(GregorianCalendar date, Location location);
-    WeatherModel getAllWeather();
-    WeatherModel getAllWeatherByLocation(Location location);
+    WeatherService getAllWeather();
+    WeatherService getAllWeatherByLocation(Location location);
 }

@@ -2,6 +2,8 @@ package Models;
 
 import java.util.GregorianCalendar;
 
+import static helpers.DateHelper.getCalendarFromString;
+
 public class DayWeatherModel {
     //Параметры:
     private Location location;
@@ -14,18 +16,21 @@ public class DayWeatherModel {
     private double rainfall;
     private int cloudiness;
     //Конструктор:
-    public DayWeatherModel(Location location, GregorianCalendar gc, double t, int h, double ws, double ap, int rc, double r, int c){
+    public DayWeatherModel(Location location,
+                           GregorianCalendar calendar, double temperature,
+                           int humidity, double windSpeed, double atmospherePressure,
+                           int rainChance, double rainfall, int cloudiness){
         this.location = location;
-        this.calendar = gc;
-        this.temperature = t;
-        this.humidity = h;
-        this.windSpeed = ws;
-        this.atmospherePressure = ap;
-        this.rainChance = rc;
-        this.rainfall = r;
-        this.cloudiness = c;
+        this.calendar = calendar;
+        this.temperature = temperature;
+        this.humidity = humidity;
+        this.windSpeed = windSpeed;
+        this.atmospherePressure = atmospherePressure;
+        this.rainChance = rainChance;
+        this.rainfall = rainfall;
+        this.cloudiness = cloudiness;
     }
-    //Get-Set-еры:
+    //Get/Set-еры:
     public GregorianCalendar getCalendar() {
         return calendar;
     }
@@ -87,5 +92,26 @@ public class DayWeatherModel {
     }
     public void setLocation(Location location) {
         this.location = location;
+    }
+
+
+    public static DayWeatherModel makeWeatherModel(Location location, String date, String t, String h, String wS, String aP, String rC, String r, String c){
+        //принимает дату из формата, предоставляемого html
+        GregorianCalendar calendar = getCalendarFromString(date, "-");
+
+        try{
+            double temperature = Double.parseDouble(t);
+            int humidity = Integer.parseInt(h);
+            double windSpeed = Double.parseDouble(wS);
+            double atmospherePressure = Double.parseDouble(aP);
+            int rainChance = Integer.parseInt(rC);
+            double rainfall = Double.parseDouble(r);
+            int cloudiness = Integer.parseInt(c);
+
+            return new DayWeatherModel(location, calendar, temperature, humidity, windSpeed, atmospherePressure, rainChance, rainfall, cloudiness);
+        } catch (NumberFormatException e){
+            e.printStackTrace();
+        }
+        return null;
     }
 }

@@ -1,9 +1,8 @@
 package dal;
 
-import Logic.WeatherProvider;
 import Models.DayWeatherModel;
 import Models.Location;
-import Models.WeatherModel;
+import Logic.WeatherService;
 import Models.WeatherPoint;
 
 import java.sql.Connection;
@@ -42,10 +41,11 @@ public class WeatherData implements WeatherDataObject{
         } catch (SQLException | ClassNotFoundException sqlEx) {
             sqlEx.printStackTrace();
         } finally {
-            //close connection ,stmt and result set here
-            try { con.close(); } catch(SQLException se) {}
-            try { stmt.close(); } catch(SQLException se) {}
-            try { rs.close(); } catch(SQLException se) {}
+            try {
+                con.close();
+                stmt.close();
+                rs.close();
+            } catch(SQLException se) {}
         }
     }
 
@@ -93,10 +93,11 @@ public class WeatherData implements WeatherDataObject{
         } catch (SQLException | ClassNotFoundException sqlEx) {
             sqlEx.printStackTrace();
         } finally {
-            //close connection ,stmt and result set here
-            try { con.close(); } catch(SQLException se) {}
-            try { stmt.close(); } catch(SQLException se) {}
-            try { rs.close(); } catch(SQLException se) {}
+            try {
+                con.close();
+                stmt.close();
+                rs.close();
+            } catch(SQLException se) {}
         }
         return dayWeather;
     }
@@ -110,7 +111,6 @@ public class WeatherData implements WeatherDataObject{
 
         String query1 = "select * from weatherdate where year like " + year + " and month like "+month+" and day like "+day+";";
         rs = stmt.executeQuery(query1);// executing SELECT query
-
 
         ArrayList<Integer> indexes = new ArrayList<>();
         while (rs.next()){
@@ -146,8 +146,8 @@ public class WeatherData implements WeatherDataObject{
     }
 
     @Override
-    public WeatherModel getAllWeather(){
-        WeatherModel weathers = new WeatherModel();
+    public WeatherService getAllWeather(){
+        WeatherService weathers = new WeatherService();
 
         String query1 = "select * from weatherdate;";
 
@@ -183,33 +183,30 @@ public class WeatherData implements WeatherDataObject{
                     if(dayWeather!=null) weathers.addDayWeather(dayWeather);
                 }
             }
-
         } catch (SQLException | ClassNotFoundException sqlEx) {
             sqlEx.printStackTrace();
         } finally {
-            //close connection ,stmt and result set here
-            try { con.close(); } catch(SQLException se) {}
-            try { stmt.close(); } catch(SQLException se) {}
-            try { rs.close(); } catch(SQLException se) {}
+            try {
+                con.close();
+                stmt.close();
+                rs.close();
+            } catch(SQLException se) {}
         }
-
         return weathers;
     }
 
     @Override
-    public WeatherModel getAllWeatherByLocation(Location location){
-        WeatherModel weathersByLocation = new WeatherModel();
+    public WeatherService getAllWeatherByLocation(Location location){
+        WeatherService weathersByLocation = new WeatherService();
 
-        WeatherModel weathers = getAllWeather();
+        WeatherService weathers = getAllWeather();
 
         for(WeatherPoint dayWeatherPoint : weathers.getDaysWeather().keySet()){//Set пускает данные только для одной страны!!!!!!!!!
             DayWeatherModel dayWeather = weathers.getDaysWeather().get(dayWeatherPoint);
-
             if(dayWeather.getLocation().getCountry().equals(location.getCountry())){
                 weathersByLocation.addDayWeather(dayWeather);
             }
         }
-
         return weathersByLocation;
     }
 

@@ -2,7 +2,7 @@ package Controllers;
 
 import Models.DayWeatherModel;
 import Models.Location;
-import Models.WeatherModel;
+import Logic.WeatherService;
 import Models.WeatherPoint;
 import dal.WeatherData;
 import dal.WeatherDataObject;
@@ -21,7 +21,7 @@ public class LocationController extends HttpServlet {
         Location location = new Location(country);
 
         WeatherDataObject weatherDB = new WeatherData();
-        WeatherModel weatherData = weatherDB.getAllWeatherByLocation(location);
+        WeatherService weatherData = weatherDB.getAllWeatherByLocation(location);
 
         TreeMap<WeatherPoint, DayWeatherModel> weekWeatherLocation = weatherData.getDaysWeatherWeekLocation(location);
 

@@ -1,0 +1,33 @@
+CREATE SCHEMA `weather` ;
+
+CREATE TABLE `weather`.`weather` (
+  `idweather` INT NOT NULL AUTO_INCREMENT,
+  `temperature` DOUBLE NOT NULL,
+  `humidity` INT NOT NULL,
+  `windSpeed` DOUBLE NOT NULL,
+  `atmospherePressure` DOUBLE NOT NULL,
+  `rainChance` INT NOT NULL,
+  `rainfall` DOUBLE NOT NULL,
+  `cloudiness` INT NOT NULL,
+  PRIMARY KEY (`idweather`));
+
+CREATE TABLE `weather`.`location` (
+  `idlocation` INT NOT NULL AUTO_INCREMENT,
+  `country` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`idlocation`));
+
+CREATE TABLE `weather`.`weatherdate` (
+  `idweatherDate` INT NOT NULL AUTO_INCREMENT,
+  `year` INT NOT NULL,
+  `month` INT NOT NULL,
+  `day` INT NOT NULL,
+  PRIMARY KEY (`idweatherDate`));
+
+CREATE TABLE `weather`.`users` (
+  `idusers` INT NOT NULL AUTO_INCREMENT,
+  `login` VARCHAR(45) NOT NULL,
+  `password` VARCHAR(45) NOT NULL,
+  `name` VARCHAR(45) NOT NULL,
+  `surname` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`idusers`));
+

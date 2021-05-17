@@ -1,6 +1,6 @@
 package Controllers;
 
-import Logic.WeatherProvider;
+import helpers.DateHelper;
 import Models.DayWeatherModel;
 import Models.Location;
 import dal.WeatherData;
@@ -29,14 +29,20 @@ public class AddDayForecastController extends HttpServlet {
         String rainfall = request.getParameter("rainfall");
         String cloudiness = request.getParameter("cloudiness");
 
-        DayWeatherModel dayWeather = WeatherProvider.makeWeatherModel(location, date, temperature, humidity, windSpeed, atmospherePressure, rainChance, rainfall, cloudiness);
-System.out.println("AddDayFore(32): loc: " + dayWeather.getLocation().getCountry() + "; date: "+WeatherProvider.getDemonstrationDateString(dayWeather.getCalendar()));
-        //ДОБАВЛЕНИЕ В БАЗУ ДАННЫХ
-        WeatherDataObject weatherDB = new WeatherData();
-        weatherDB.putWeather(dayWeather);
+        DayWeatherModel dayWeather = DayWeatherModel.makeWeatherModel(location, date, temperature, humidity, windSpeed, atmospherePressure, rainChance, rainfall, cloudiness);
 
-        request.getRequestDispatcher("AllForecastsAdminDispatcher").forward(request, response);
+        if(dayWeather == null) {
+            response.sendError(400, "Incorrect input");
+        }else {
+            //ДОБАВЛЕНИЕ В БАЗУ ДАННЫХ
+            WeatherDataObject weatherDB = new WeatherData();
+            weatherDB.putWeather(dayWeather);
+
+            request.getRequestDispatcher("AllForecastsAdminDispatcher").forward(request, response);
+        }
+
     }
+
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         processRequest(request, response);
     }
